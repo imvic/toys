@@ -1,0 +1,9 @@
+{
+  "name": "mmath",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://gitee.com/-o-/mmath.git",
+  "author": "<hexxa@outlook.com>",
+  "license": "MIT",
+  "private": null
+}
