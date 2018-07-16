@@ -9,18 +9,26 @@ class MMathPanel extends React.PureComponent {
     super(props);
     this.state = {
       mode: ModeQuestion,
-      op1: this.genNum(),
-      op2: this.genNum(),
-      value: 0
+      value: 0,
+      min: 0,
+      max: 0,
+      op1: 0,
+      op2: 0
     };
     this.genNum = this.genNum.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onRefresh = this.onRefresh.bind(this);
+    this.onChangeMin = this.onChangeMin.bind(this);
+    this.onChangeMax = this.onChangeMax.bind(this);
+    this.setState({ op1: this.genNum(), op2: this.genNum() });
   }
 
   genNum() {
-    return Math.floor(Math.random() * this.props.product, 10);
+    return Math.floor(
+      this.state.min + Math.random() * (this.state.max - this.state.min),
+      10
+    );
   }
 
   onChange(event) {
@@ -39,7 +47,16 @@ class MMathPanel extends React.PureComponent {
     });
   }
 
+  onChangeMin(event) {
+    this.setState({ min: Number(event.target.value) });
+  }
+
+  onChangeMax(event) {
+    this.setState({ max: Number(event.target.value) });
+  }
+
   render() {
+    console.log(this.state.op1, this.state.op2);
     const button =
       this.state.mode === ModeQuestion ? (
         <button onClick={this.onSubmit}>Submit</button>
@@ -54,6 +71,8 @@ class MMathPanel extends React.PureComponent {
     return (
       <div>
         <h3>{`${this.state.op1} + ${this.state.op2}`}</h3>
+        <input value={this.state.min} onChange={this.onChangeMin} />
+        <input value={this.state.max} onChange={this.onChangeMax} />
         <input value={this.state.value} onChange={this.onChange} />
         {button}
         <div>{answer}</div>
@@ -62,8 +81,6 @@ class MMathPanel extends React.PureComponent {
   }
 }
 
-MMathPanel.defaultProps = {
-  product: 100
-};
+MMathPanel.defaultProps = {};
 
-ReactDOM.render(<MMathPanel product={1000} />, document.getElementById("app"));
+ReactDOM.render(<MMathPanel />, document.getElementById("app"));
