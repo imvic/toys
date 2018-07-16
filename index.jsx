@@ -7,13 +7,15 @@ const ModeAnswer = 1;
 const styleContainer = {
   color: "#666",
   fontFamily: "arial, sans-serif",
-  fontSize: "2rem",
+  fontSize: "4rem",
   margin: "auto",
   textAlign: "center"
 };
 
 const styleInput = {
   border: "solid 1px #ccc",
+  color: "#666",
+  fontSize: "3rem",
   padding: "1rem",
   margin: "1rem 0"
 };
@@ -22,6 +24,7 @@ const styleButton = {
   backgroundColor: "#2ecc71",
   border: "none",
   color: "#fff",
+  fontSize: "3rem",
   margin: "1rem 0",
   padding: "1rem"
 };
@@ -31,9 +34,9 @@ class MMathPanel extends React.PureComponent {
     super(props);
     this.state = {
       mode: ModeQuestion,
-      value: 0,
-      min: 0,
-      max: 0,
+      value: "",
+      min: "",
+      max: "",
       op1: 0,
       op2: 0
     };
@@ -47,10 +50,9 @@ class MMathPanel extends React.PureComponent {
   }
 
   genNum() {
-    return Math.floor(
-      this.state.min + Math.random() * (this.state.max - this.state.min),
-      10
-    );
+    const min = Number(this.state.min);
+    const max = Number(this.state.max);
+    return Math.floor(min + Math.random() * (max - min), 10);
   }
 
   onChange(event) {
@@ -70,11 +72,11 @@ class MMathPanel extends React.PureComponent {
   }
 
   onChangeMin(event) {
-    this.setState({ min: Number(event.target.value) });
+    this.setState({ min: event.target.value });
   }
 
   onChangeMax(event) {
-    this.setState({ max: Number(event.target.value) });
+    this.setState({ max: event.target.value });
   }
 
   render() {
@@ -104,12 +106,14 @@ class MMathPanel extends React.PureComponent {
           <input
             placeholder="min"
             style={styleInput}
+            type="number"
             value={this.state.min}
             onChange={this.onChangeMin}
           />
           <input
             placeholder="max"
             style={styleInput}
+            type="number"
             value={this.state.max}
             onChange={this.onChangeMax}
           />
@@ -117,6 +121,7 @@ class MMathPanel extends React.PureComponent {
         <div>
           <input
             style={styleInput}
+            type="number"
             value={this.state.value}
             onChange={this.onChange}
           />
