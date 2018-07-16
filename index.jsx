@@ -4,6 +4,11 @@ import * as ReactDOM from "react-dom";
 const ModeQuestion = 0;
 const ModeAnswer = 1;
 
+const styleTitle = {
+  textAlign: "middle",
+  letterSpacing: "1rem"
+};
+
 const styleContainer = {
   color: "#666",
   fontFamily: "arial, sans-serif",
@@ -35,10 +40,11 @@ class MMathPanel extends React.PureComponent {
     this.state = {
       mode: ModeQuestion,
       value: "",
-      min: "",
-      max: "",
+      min: 10000,
+      max: 99999,
       op1: 0,
-      op2: 0
+      op2: 0,
+      count: 0
     };
     this.genNum = this.genNum.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -67,7 +73,9 @@ class MMathPanel extends React.PureComponent {
     this.setState({
       mode: ModeQuestion,
       op1: this.genNum(),
-      op2: this.genNum()
+      op2: this.genNum(),
+      value: "",
+      count: this.state.count + 1
     });
   }
 
@@ -101,7 +109,9 @@ class MMathPanel extends React.PureComponent {
       );
     return (
       <div style={styleContainer}>
-        <h3>{`${this.state.op1} + ${this.state.op2}`}</h3>
+        <h3 style={styleTitle}>{this.state.count}</h3>
+        <h3 style={styleTitle}>{this.state.op1}</h3>
+        <h3 style={styleTitle}>{this.state.op2}</h3>
         <div>
           <input
             placeholder="min"
