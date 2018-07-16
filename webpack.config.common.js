@@ -1,13 +1,17 @@
 const webpack = require("webpack");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const UglifyJS = require("uglifyjs-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 
-const outputPath = `./dist`;
+const outputPath = `${__dirname}/dist`;
 
 module.exports = {
+  mode: "production",
   context: __dirname,
   entry: {
     assets: ["react", "react-dom"],
-    main: "./index.js"
+    main: "./index.jsx"
   },
   output: {
     path: outputPath,
@@ -35,16 +39,19 @@ module.exports = {
   resolve: {
     extensions: [".js", ".json", ".jsx", ".css"]
   },
+  devtool: "source-map",
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "assets",
-      // filename: "vendor.js"
-      // (Give the chunk a different name)
-      minChunks: Infinity
-      // (with more entries, this ensures that no other module
-      //  goes into the vendor chunk)
+    new CleanWebpackPlugin([outputPath]),
+    new UglifyJS({
+      sourceMap: true
     }),
-    // new HtmlWebpackPlugin(),
-    new CleanWebpackPlugin([outputPath])
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify("production")
+    }),
+    new HtmlWebpackPlugin({
+      inlineSource: ".(js|css)$",
+      template: "template.html"
+    }),
+    new HtmlWebpackInlineSourcePlugin()
   ]
 };
