@@ -55,17 +55,26 @@ class MMathPanel extends React.PureComponent {
       max: 99999,
       op1: 0,
       op2: 0,
+      nums: [],
+      numCount: 2,
       op: 0,
       count: 0
     };
 
+    this.calAnswer = this.calAnswer.bind(this);
+    this.onChangeOp = this.onChangeOp.bind(this);
     this.genNum = this.genNum.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onRefresh = this.onRefresh.bind(this);
     this.onChangeMin = this.onChangeMin.bind(this);
     this.onChangeMax = this.onChangeMax.bind(this);
-    this.setState({ op1: this.genNum(), op2: this.genNum() });
+    this.onChangeNumCount = this.onChangeNumCount.bind(this);
+  }
+
+  componentWillMount() {
+    const nums = Array.from(Array(this.state.numCount).keys()).map(num => num);
+    this.setState({ nums });
   }
 
   genNum() {
@@ -102,6 +111,10 @@ class MMathPanel extends React.PureComponent {
 
   onChangeOp(op) {
     this.setState({ op });
+  }
+
+  onChangeNumCount(event) {
+    this.setState({ numCount: event.target.value });
   }
 
   calAnswer() {
@@ -156,7 +169,7 @@ class MMathPanel extends React.PureComponent {
       </div>
     );
 
-    return (
+    const numbers = this.state.return(
       <div style={styleContainer}>
         <h3 style={styleTitle}>
           {this.state.count} {this.state.op}
@@ -165,6 +178,13 @@ class MMathPanel extends React.PureComponent {
         <h3 style={styleTitle}>{this.state.op2}</h3>
         <div>
           {opButtons}
+          <input
+            placeholder="number count"
+            style={styleInput}
+            type="number"
+            value={this.state.numCount}
+            onChange={this.onChangeNumCount}
+          />
           <input
             placeholder="min"
             style={styleInput}
