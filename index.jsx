@@ -18,11 +18,22 @@ const styleContainer = {
 };
 
 const styleInput = {
+  backgroundColor: "wihte",
   border: "solid 1px #ccc",
   color: "#666",
   fontSize: "3rem",
   padding: "1rem",
   margin: "1rem 0"
+};
+
+const styleSelect = {
+  backgroundColor: "wihte",
+  border: "solid 1px #ccc",
+  color: "#666",
+  fontSize: "3rem",
+  padding: "1rem",
+  margin: "1rem 0",
+  display: "block"
 };
 
 const styleButton = {
@@ -44,8 +55,10 @@ class MMathPanel extends React.PureComponent {
       max: 99999,
       op1: 0,
       op2: 0,
+      op: 0,
       count: 0
     };
+
     this.genNum = this.genNum.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -87,6 +100,23 @@ class MMathPanel extends React.PureComponent {
     this.setState({ max: event.target.value });
   }
 
+  onChangeOp(op) {
+    this.setState({ op });
+  }
+
+  calAnswer() {
+    switch (this.state.op) {
+      case 0:
+        return this.state.op1 + this.state.op2;
+      case 1:
+        return this.state.op1 - this.state.op2;
+      case 2:
+        return this.state.op1 * this.state.op2;
+      default:
+        return this.state.op1 / this.state.op2;
+    }
+  }
+
   render() {
     const button =
       this.state.mode === ModeQuestion ? (
@@ -98,21 +128,43 @@ class MMathPanel extends React.PureComponent {
           Refresh
         </button>
       );
+
     const answer =
       this.state.mode === ModeAnswer ? (
         <div>
           <div>Yours: {this.state.value}</div>
-          <div>Answer: {this.state.op1 + this.state.op2}</div>
+          <div>Answer: {this.calAnswer()}</div>
         </div>
       ) : (
         ""
       );
+
+    const opButtons = (
+      <div>
+        <button style={styleButton} onClick={() => this.onChangeOp(0)}>
+          plus
+        </button>
+        <button style={styleButton} onClick={() => this.onChangeOp(1)}>
+          minus
+        </button>
+        <button style={styleButton} onClick={() => this.onChangeOp(2)}>
+          multiply
+        </button>
+        <button style={styleButton} onClick={() => this.onChangeOp(3)}>
+          divide
+        </button>
+      </div>
+    );
+
     return (
       <div style={styleContainer}>
-        <h3 style={styleTitle}>{this.state.count}</h3>
+        <h3 style={styleTitle}>
+          {this.state.count} {this.state.op}
+        </h3>
         <h3 style={styleTitle}>{this.state.op1}</h3>
         <h3 style={styleTitle}>{this.state.op2}</h3>
         <div>
+          {opButtons}
           <input
             placeholder="min"
             style={styleInput}
