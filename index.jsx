@@ -26,16 +26,6 @@ const styleInput = {
   margin: "1rem 0"
 };
 
-const styleSelect = {
-  backgroundColor: "wihte",
-  border: "solid 1px #ccc",
-  color: "#666",
-  fontSize: "3rem",
-  padding: "1rem",
-  margin: "1rem 0",
-  display: "block"
-};
-
 const styleButton = {
   backgroundColor: "#2ecc71",
   border: "none",
@@ -49,21 +39,18 @@ class MMathPanel extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      count: 0,
       mode: ModeQuestion,
-      value: "",
       min: 10000,
       max: 99999,
-      op1: 0,
-      op2: 0,
       nums: [],
       numCount: 2,
       op: 0,
-      count: 0
+      value: ""
     };
 
     this.calAnswer = this.calAnswer.bind(this);
     this.onChangeOp = this.onChangeOp.bind(this);
-    this.genNum = this.genNum.bind(this);
     this.genNums = this.genNums.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -78,15 +65,11 @@ class MMathPanel extends React.PureComponent {
   }
 
   genNums() {
-    return Array.from(Array(this.state.numCount).keys()).map(num =>
-      this.genNum()
-    );
-  }
-
-  genNum() {
     const min = Number(this.state.min);
     const max = Number(this.state.max);
-    return Math.floor(min + Math.random() * (max - min), 10);
+    return Array.from(Array(this.state.numCount).keys()).map(num =>
+      Math.floor(min + Math.random() * (max - min), 10)
+    );
   }
 
   onChange(event) {
@@ -100,8 +83,6 @@ class MMathPanel extends React.PureComponent {
   onRefresh() {
     this.setState({
       mode: ModeQuestion,
-      op1: this.genNum(),
-      op2: this.genNum(),
       nums: this.genNums(),
       value: "",
       count: this.state.count + 1
