@@ -30,7 +30,7 @@ class MMathPanel extends React.PureComponent {
           <input
             value={this.state.colCount}
             onChange={this.onChangeCol}
-            style={styleInput}
+            style={{ ...styleInput, width: "100%" }}
           />
         </div>
         {mathPanels}

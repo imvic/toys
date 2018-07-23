@@ -29,7 +29,8 @@ export const styleInput = {
   color: "#666",
   fontSize: "2.5rem",
   padding: "1rem",
-  margin: "1rem 0"
+  margin: "1rem 0",
+  width: "60%"
 };
 
 const styleButton = {
@@ -71,9 +72,10 @@ export class MathPanel extends React.PureComponent {
   }
 
   genNums() {
-    const min = Number(this.state.min);
-    const max = Number(this.state.max);
-    return Array.from(Array(this.state.numCount).keys()).map(num =>
+    const min = Math.floor(Number(this.state.min));
+    const max = Math.floor(Number(this.state.max));
+    const numCount = Math.floor(Number(this.state.numCount));
+    return Array.from(Array(numCount).keys()).map(num =>
       Math.floor(min + Math.random() * (max - min), 10)
     );
   }
@@ -108,7 +110,7 @@ export class MathPanel extends React.PureComponent {
   }
 
   onChangeNumCount(event) {
-    this.setState({ numCount: Math.floor(Number(event.target.value)) });
+    this.setState({ numCount: event.target.value });
   }
 
   calAnswer() {
@@ -181,7 +183,7 @@ export class MathPanel extends React.PureComponent {
             : "/";
 
     return (
-      <div style={styleContainer}>
+      <div style={{ ...styleContainer, ...this.props.style }}>
         <div style={styleTitle}>
           Count: {this.state.count} | Operator: {operator}
         </div>
@@ -231,4 +233,6 @@ export class MathPanel extends React.PureComponent {
   }
 }
 
-MathPanel.defaultProps = {};
+MathPanel.defaultProps = {
+  style: {}
+};
