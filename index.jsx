@@ -6,13 +6,18 @@ const ModeAnswer = 1;
 
 const styleTitle = {
   textAlign: "middle",
+  lineHeight: "5rem"
+};
+
+const styleNum = {
+  textAlign: "middle",
   letterSpacing: "1rem"
 };
 
 const styleContainer = {
   color: "#666",
   fontFamily: "arial, sans-serif",
-  fontSize: "4rem",
+  fontSize: "2.5rem",
   margin: "auto",
   textAlign: "center"
 };
@@ -21,16 +26,16 @@ const styleInput = {
   backgroundColor: "wihte",
   border: "solid 1px #ccc",
   color: "#666",
-  fontSize: "3rem",
+  fontSize: "2.5rem",
   padding: "1rem",
   margin: "1rem 0"
 };
 
 const styleButton = {
-  backgroundColor: "#2ecc71",
+  backgroundColor: "#333",
   border: "none",
   color: "#fff",
-  fontSize: "3rem",
+  fontSize: "2.5rem",
   margin: "1rem 0",
   padding: "1rem"
 };
@@ -159,7 +164,7 @@ class MMathPanel extends React.PureComponent {
 
     const numbers = this.state.nums.map((num, id) => {
       return (
-        <div key={`num-${id}`} style={styleTitle}>
+        <div key={`num-${id}`} style={styleNum}>
           {num}
         </div>
       );
@@ -176,33 +181,39 @@ class MMathPanel extends React.PureComponent {
 
     return (
       <div style={styleContainer}>
-        <h3 style={styleTitle}>
-          {this.state.count} {operator}
-        </h3>
+        <div style={styleTitle}>
+          Count: {this.state.count} | Operator: {operator}
+        </div>
         {numbers}
         <div>
           {opButtons}
-          <input
-            placeholder="number count"
-            style={styleInput}
-            type="number"
-            value={this.state.numCount}
-            onChange={this.onChangeNumCount}
-          />
-          <input
-            placeholder="min"
-            style={styleInput}
-            type="number"
-            value={this.state.min}
-            onChange={this.onChangeMin}
-          />
-          <input
-            placeholder="max"
-            style={styleInput}
-            type="number"
-            value={this.state.max}
-            onChange={this.onChangeMax}
-          />
+          <div>
+            <input
+              placeholder="number count"
+              style={styleInput}
+              type="number"
+              value={this.state.numCount}
+              onChange={this.onChangeNumCount}
+            />
+          </div>
+          <div>
+            <input
+              placeholder="min"
+              style={styleInput}
+              type="number"
+              value={this.state.min}
+              onChange={this.onChangeMin}
+            />
+          </div>
+          <div>
+            <input
+              placeholder="max"
+              style={styleInput}
+              type="number"
+              value={this.state.max}
+              onChange={this.onChangeMax}
+            />
+          </div>
         </div>
         <div>
           <input
