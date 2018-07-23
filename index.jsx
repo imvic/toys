@@ -64,6 +64,7 @@ class MMathPanel extends React.PureComponent {
     this.calAnswer = this.calAnswer.bind(this);
     this.onChangeOp = this.onChangeOp.bind(this);
     this.genNum = this.genNum.bind(this);
+    this.genNums = this.genNums.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onRefresh = this.onRefresh.bind(this);
@@ -73,8 +74,13 @@ class MMathPanel extends React.PureComponent {
   }
 
   componentWillMount() {
-    const nums = Array.from(Array(this.state.numCount).keys()).map(num => num);
-    this.setState({ nums });
+    this.setState({ nums: this.genNums() });
+  }
+
+  genNums() {
+    return Array.from(Array(this.state.numCount).keys()).map(num =>
+      this.genNum()
+    );
   }
 
   genNum() {
@@ -96,6 +102,7 @@ class MMathPanel extends React.PureComponent {
       mode: ModeQuestion,
       op1: this.genNum(),
       op2: this.genNum(),
+      nums: this.genNums(),
       value: "",
       count: this.state.count + 1
     });
@@ -114,19 +121,19 @@ class MMathPanel extends React.PureComponent {
   }
 
   onChangeNumCount(event) {
-    this.setState({ numCount: event.target.value });
+    this.setState({ numCount: Math.floor(Number(event.target.value)) });
   }
 
   calAnswer() {
     switch (this.state.op) {
       case 0:
-        return this.state.op1 + this.state.op2;
+        return this.state.nums.reduce((acc, value) => acc + value);
       case 1:
-        return this.state.op1 - this.state.op2;
+        return this.state.nums.reduce((acc, value) => acc - value);
       case 2:
-        return this.state.op1 * this.state.op2;
+        return this.state.nums.reduce((acc, value) => acc * value);
       default:
-        return this.state.op1 / this.state.op2;
+        return this.state.nums.reduce((acc, value) => acc / value);
     }
   }
 
@@ -169,13 +176,29 @@ class MMathPanel extends React.PureComponent {
       </div>
     );
 
-    const numbers = this.state.return(
+    const numbers = this.state.nums.map((num, id) => {
+      return (
+        <div key={`num-${id}`} style={styleTitle}>
+          {num}
+        </div>
+      );
+    });
+
+    const operator =
+      this.state.op === 0
+        ? "+"
+        : this.state.op === 1
+          ? "-"
+          : this.state.op === 2
+            ? "*"
+            : "/";
+
+    return (
       <div style={styleContainer}>
         <h3 style={styleTitle}>
-          {this.state.count} {this.state.op}
+          {this.state.count} {operator}
         </h3>
-        <h3 style={styleTitle}>{this.state.op1}</h3>
-        <h3 style={styleTitle}>{this.state.op2}</h3>
+        {numbers}
         <div>
           {opButtons}
           <input
