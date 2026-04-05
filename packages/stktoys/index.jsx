@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { MathPanel, styleInput } from "./math_panel";
 
 class App extends React.PureComponent {
   constructor(props) {
@@ -122,7 +121,7 @@ class App extends React.PureComponent {
 
     const priceAvg = (hold / totalCount).toFixed(2);
     const sold = (this.state.exit.price * this.state.exit.count).toFixed(2);
-    const loss = (
+    const gain = (
       (this.state.exit.price - priceAvg) *
       this.state.exit.count
     ).toFixed(2);
@@ -131,6 +130,10 @@ class App extends React.PureComponent {
 
     return (
       <div>
+        {this.state.exit.count > totalCount && (
+          <div id="alert">Too much sold</div>
+        )}
+
         {txRows}
         <div>
           <button onClick={this.onAddTx}>AddTx</button>
@@ -148,10 +151,10 @@ class App extends React.PureComponent {
             type="text"
           ></input>
         </div>
-        <div>
+        <div id="result">
           <div>{`Pre: ${hold} = ${priceAvg} x ${totalCount}`}</div>
           <div>{`Sold: ${sold} (${((sold / hold) * 100).toFixed(2)}%) = ${this.state.exit.price} x ${this.state.exit.count}`}</div>
-          <div>{`Loss: ${loss} (${((loss / sold) * 100).toFixed(2)}%) = ${(priceAvg - this.state.exit.price).toFixed(2)} x ${this.state.exit.count}`}</div>
+          <div>{`Gain: ${gain} (${((gain / sold) * 100).toFixed(2)}%) = ${(this.state.exit.price - priceAvg).toFixed(2)} x ${this.state.exit.count}`}</div>
           <div>{`Post: ${leftValue} (${((leftValue / hold) * 100).toFixed(2)}%) = ${priceAvg} x  ${leftCount}`}</div>
         </div>
       </div>
