@@ -113,9 +113,13 @@ class App extends React.PureComponent {
 
     let hold = 0;
     let totalCount = 0;
+    let maxPrice = 0.0;
     this.state.txs.forEach((tx) => {
       hold += tx.price * tx.count;
       totalCount += tx.count;
+      if (tx.price - maxPrice > 0) {
+        maxPrice = tx.price;
+      }
     });
     hold = hold.toFixed(2);
 
@@ -127,7 +131,10 @@ class App extends React.PureComponent {
     ).toFixed(2);
     const leftCount = totalCount - this.state.exit.count;
     const leftValue = (priceAvg * leftCount).toFixed(2);
-    const interval = ((this.state.exit.price-priceAvg)/priceAvg * 100).toFixed(2);
+    const interval = (
+      ((this.state.exit.price - maxPrice) / maxPrice) *
+      100
+    ).toFixed(2);
 
     return (
       <div>
