@@ -127,6 +127,7 @@ class App extends React.PureComponent {
     ).toFixed(2);
     const leftCount = totalCount - this.state.exit.count;
     const leftValue = (priceAvg * leftCount).toFixed(2);
+    const interval = ((this.state.exit.price-priceAvg)/priceAvg * 100).toFixed(2);
 
     return (
       <div>
@@ -155,7 +156,7 @@ class App extends React.PureComponent {
           <div>{`Pre: ${hold} = ${priceAvg} x ${totalCount}`}</div>
           <div>{`Sold: ${sold} (${((sold / hold) * 100).toFixed(2)}%) = ${this.state.exit.price} x ${this.state.exit.count}`}</div>
           <div>{`Gain: ${gain} (${((gain / sold) * 100).toFixed(2)}%) = ${(this.state.exit.price - priceAvg).toFixed(2)} x ${this.state.exit.count}`}</div>
-          <div>{`Post: ${leftValue} (${((leftValue / hold) * 100).toFixed(2)}%) = ${priceAvg} x  ${leftCount}`}</div>
+          <div>{`Post: ${leftValue} (${interval}%) = ${priceAvg} x  ${leftCount}`}</div>
         </div>
       </div>
     );
