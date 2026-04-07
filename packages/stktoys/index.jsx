@@ -14,7 +14,10 @@ class App extends React.PureComponent {
       min: 1,
       max: 30,
       quantiles: [],
+
+      pwd: "",
     };
+    this.pwd = "stk";
 
     this.onChangePrice = this.onChangePrice.bind(this);
     this.onChangeCount = this.onChangeCount.bind(this);
@@ -140,6 +143,12 @@ class App extends React.PureComponent {
     });
   };
 
+  onChangePwd = (e) => {
+    this.setState({
+      pwd: e.target.value,
+    });
+  }
+
 
   render() {
     const txRows = this.state.txs.map((tx, id) => (
@@ -191,9 +200,27 @@ class App extends React.PureComponent {
 
     console.log(this.state.exit.price, maxPrice);
 
-    const quantileList = this.state.quantiles.map((quantile) => {
+    const quantileListPos = this.state.quantiles
+      .filter(q => q.name >= 0)
+      .map((quantile) => {
+        return <span>{`${quantile.name}=${quantile.value}, `}</span>;
+    });
+
+    const quantileListNeg = this.state.quantiles
+      .filter(q => q.name < 0)
+      .map((quantile) => {
       return <span>{`${quantile.name}=${quantile.value}, `}</span>;
     });
+
+    if (this.state.pwd !== this.pwd) {
+      return (
+          <input
+            onChange={this.onChangePwd}
+            placeholder={"unlock"}
+            type="text"
+          ></input>
+      );
+    }
 
     return (
       <div>
@@ -213,7 +240,8 @@ class App extends React.PureComponent {
             placeholder={"Max"}
             type="text"
           ></input>
-          <div className="result">{quantileList}</div>
+          <div className="result">{quantileListPos}</div>
+          <div className="result">{quantileListNeg}</div>
         </div>
 
         <hr />
