@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "webpack --config webpack.config.common.js",
-    "build-local": "webpack --config webpack.config.common.local.js"
+    "build-dev": "webpack --config webpack.config.common.js",
+    "build": "webpack --config webpack.config.common.local.js"
   },
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",

@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+const quantiles = [2, 3, 5, 7, 8, 9, 10, 12, 15, 16, 18, 20, 22, 25, 28, 30];
+
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -10,6 +12,8 @@ class App extends React.PureComponent {
         price: 0,
         count: 0,
       },
+      target: 0,
+      quantiles: [],
     };
 
     this.onChangePrice = this.onChangePrice.bind(this);
@@ -18,6 +22,7 @@ class App extends React.PureComponent {
     this.onDelTx = this.onDelTx.bind(this);
     this.onChangeExitPrice = this.onChangeExitPrice.bind(this);
     this.onChangeExitCount = this.onChangeExitCount.bind(this);
+    this.onChangeTarget = this.onChangeTarget.bind(this);
   }
 
   onChangePrice(id, strVal) {
@@ -88,6 +93,23 @@ class App extends React.PureComponent {
     });
   }
 
+  onChangeTarget(e) {
+    const target = parseInt(e.target.value);
+    const reverseQuantiles = quantiles.map((quantile) => quantile * -1);
+    const allQuantiles = [...reverseQuantiles, ...quantiles];
+    const quantileList = allQuantiles.map((quantile) => {
+      return {
+        name: quantile,
+        value: (((quantile + 100.0) / 100.0) * target).toFixed(2),
+      };
+    });
+
+    this.setState({
+      target,
+      quantiles: quantileList,
+    });
+  }
+
   render() {
     const txRows = this.state.txs.map((tx, id) => (
       <div
@@ -136,8 +158,23 @@ class App extends React.PureComponent {
       100
     ).toFixed(2);
 
+    const quantileList = this.state.quantiles.map((quantile) => {
+      return <span>{`${quantile.name}=${quantile.value}, `}</span>;
+    });
+
     return (
       <div>
+        <div>
+          <input
+            onChange={this.onChangeTarget}
+            placeholder={"Target"}
+            type="text"
+          ></input>
+          <div className="result">{quantileList}</div>
+        </div>
+
+        <hr />
+
         {this.state.exit.count > totalCount && (
           <div id="alert">Too much sold</div>
         )}
@@ -159,7 +196,7 @@ class App extends React.PureComponent {
             type="text"
           ></input>
         </div>
-        <div id="result">
+        <div className="result">
           <div>{`Pre: ${hold} = ${priceAvg} x ${totalCount}`}</div>
           <div>{`Sold: ${sold} (${((sold / hold) * 100).toFixed(2)}%) = ${this.state.exit.price} x ${this.state.exit.count}`}</div>
           <div>{`Gain: ${gain} (${((gain / sold) * 100).toFixed(2)}%) = ${(this.state.exit.price - priceAvg).toFixed(2)} x ${this.state.exit.count}`}</div>
