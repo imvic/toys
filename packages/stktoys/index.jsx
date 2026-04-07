@@ -1,8 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-const quantiles = [2, 3, 5, 7, 8, 9, 10, 12, 15, 16, 18, 20, 22, 25, 28, 30];
-
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -13,6 +11,8 @@ class App extends React.PureComponent {
         count: 0,
       },
       target: 0,
+      min: 1,
+      max: 30,
       quantiles: [],
     };
 
@@ -94,7 +94,21 @@ class App extends React.PureComponent {
   }
 
   onChangeTarget(e) {
-    const target = parseInt(e.target.value);
+    const target = parseFloat(e.target.value).toFixed(2);
+
+    const quantileList = this.calculateQuantiles(target, this.state.min, this.state.max);
+    this.setState({
+      target,
+      quantiles: quantileList,
+    });
+  }
+
+  calculateQuantiles = (target, min, max) => {
+    let quantiles = [];
+    for (let i = min; i <= max; i++) {
+      quantiles = [...quantiles, i];
+    }
+
     const reverseQuantiles = quantiles.map((quantile) => quantile * -1);
     const allQuantiles = [...reverseQuantiles, ...quantiles];
     const quantileList = allQuantiles.map((quantile) => {
@@ -104,11 +118,28 @@ class App extends React.PureComponent {
       };
     });
 
+    return quantileList;
+  };
+
+  onChangeMin = (e) => {
+    const min = parseInt(e.target.value);
+
+    const quantileList = this.calculateQuantiles(this.state.target, min, this.state.max);
     this.setState({
-      target,
+      min,
       quantiles: quantileList,
     });
-  }
+  };
+
+  onChangeMax = (e) => {
+    const max = parseInt(e.target.value);
+    const quantileList = this.calculateQuantiles(this.state.target, this.state.min, max);
+    this.setState({
+      max,
+      quantiles: quantileList,
+    });
+  };
+
 
   render() {
     const txRows = this.state.txs.map((tx, id) => (
@@ -158,6 +189,8 @@ class App extends React.PureComponent {
       100
     ).toFixed(2);
 
+    console.log(this.state.exit.price, maxPrice);
+
     const quantileList = this.state.quantiles.map((quantile) => {
       return <span>{`${quantile.name}=${quantile.value}, `}</span>;
     });
@@ -168,6 +201,16 @@ class App extends React.PureComponent {
           <input
             onChange={this.onChangeTarget}
             placeholder={"Target"}
+            type="text"
+          ></input>
+          <input
+            onChange={this.onChangeMin}
+            placeholder={"Min"}
+            type="text"
+          ></input>
+          <input
+            onChange={this.onChangeMax}
+            placeholder={"Max"}
             type="text"
           ></input>
           <div className="result">{quantileList}</div>
