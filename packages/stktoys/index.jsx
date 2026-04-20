@@ -16,6 +16,13 @@ class App extends React.PureComponent {
       quantiles: [],
 
       pwd: "",
+
+      interval: {
+        start: 0,
+        end: 0,
+        count: 0,
+        points: [],
+      },
     };
     this.pwd = "stk";
 
@@ -99,7 +106,11 @@ class App extends React.PureComponent {
   onChangeTarget(e) {
     const target = parseFloat(e.target.value).toFixed(2);
 
-    const quantileList = this.calculateQuantiles(target, this.state.min, this.state.max);
+    const quantileList = this.calculateQuantiles(
+      target,
+      this.state.min,
+      this.state.max,
+    );
     this.setState({
       target,
       quantiles: quantileList,
@@ -127,7 +138,11 @@ class App extends React.PureComponent {
   onChangeMin = (e) => {
     const min = parseInt(e.target.value);
 
-    const quantileList = this.calculateQuantiles(this.state.target, min, this.state.max);
+    const quantileList = this.calculateQuantiles(
+      this.state.target,
+      min,
+      this.state.max,
+    );
     this.setState({
       min,
       quantiles: quantileList,
@@ -136,7 +151,11 @@ class App extends React.PureComponent {
 
   onChangeMax = (e) => {
     const max = parseInt(e.target.value);
-    const quantileList = this.calculateQuantiles(this.state.target, this.state.min, max);
+    const quantileList = this.calculateQuantiles(
+      this.state.target,
+      this.state.min,
+      max,
+    );
     this.setState({
       max,
       quantiles: quantileList,
@@ -147,8 +166,53 @@ class App extends React.PureComponent {
     this.setState({
       pwd: e.target.value,
     });
-  }
+  };
 
+  onChangeStart = (e) => {
+    const start = parseInt(e.target.value);
+    this.setState({
+      interval: {
+        ...this.state.interval,
+        start,
+      },
+    });
+  };
+
+  onChangeEnd = (e) => {
+    const end = parseInt(e.target.value);
+    this.setState({
+      interval: {
+        ...this.state.interval,
+        end,
+      },
+    });
+  };
+
+  onChangePointCount = (e) => {
+    const pointCount = parseInt(e.target.value);
+    const start = this.state.interval.start;
+    const end = this.state.interval.end;
+
+    const interval = (end - start) / 100;
+    const gap = interval / (pointCount - 1);
+
+    let points = [];
+    let txs = [];
+    for (let i = 0; i < pointCount; i++) {
+      const price = this.state.target * (i * gap + 1);
+      points = [...points, price];
+      txs = [...txs, {price: 0, count: 0}];
+    }
+
+    this.setState({
+      interval: {
+        ...this.state.interval,
+        count: pointCount,
+        points,
+      },
+      txs,
+    });
+  };
 
   render() {
     const txRows = this.state.txs.map((tx, id) => (
@@ -198,27 +262,30 @@ class App extends React.PureComponent {
       100
     ).toFixed(2);
 
-    console.log(this.state.exit.price, maxPrice);
-
     const quantileListPos = this.state.quantiles
-      .filter(q => q.name >= 0)
+      .filter((q) => q.name >= 0)
       .map((quantile) => {
         return <span>{`${quantile.name}=${quantile.value}, `}</span>;
-    });
+      });
 
     const quantileListNeg = this.state.quantiles
-      .filter(q => q.name < 0)
+      .filter((q) => q.name < 0)
       .map((quantile) => {
-      return <span>{`${quantile.name}=${quantile.value}, `}</span>;
+        return <span>{`${quantile.name}=${quantile.value}, `}</span>;
+      });
+
+    console.log(this.state);
+    const pointsList = this.state.interval.points.map((point) => {
+      return <span>{`${point.toFixed(2)}, `}</span>;
     });
 
     if (this.state.pwd !== this.pwd) {
       return (
-          <input
-            onChange={this.onChangePwd}
-            placeholder={"unlock"}
-            type="text"
-          ></input>
+        <input
+          onChange={this.onChangePwd}
+          placeholder={"unlock"}
+          type="text"
+        ></input>
       );
     }
 
@@ -240,8 +307,30 @@ class App extends React.PureComponent {
             placeholder={"Max"}
             type="text"
           ></input>
+
           <div className="result">{quantileListPos}</div>
           <div className="result">{quantileListNeg}</div>
+        </div>
+
+        <hr />
+
+        <div>
+          <input
+            onChange={this.onChangeStart}
+            placeholder={"Start"}
+            type="text"
+          ></input>
+          <input
+            onChange={this.onChangeEnd}
+            placeholder={"End"}
+            type="text"
+          ></input>
+          <input
+            onChange={this.onChangePointCount}
+            placeholder={"PointCount"}
+            type="text"
+          ></input>
+          <div className="result">{pointsList}</div>
         </div>
 
         <hr />
