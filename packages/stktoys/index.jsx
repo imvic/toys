@@ -1,11 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import { configs } from "./configs";
+
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      txs: [{ price: 0, count: 0 }],
+      txs: [{ price: "", count: 0 }],
       exit: {
         price: 0,
         count: 0,
@@ -21,12 +23,12 @@ class App extends React.PureComponent {
         start: 0,
         end: 0,
         count: 0,
-        points: [],
       },
-    };
-    this.pwd = "stk";
 
-    this.onChangePrice = this.onChangePrice.bind(this);
+      config: undefined,
+    };
+    this.pwd = "st";
+
     this.onChangeCount = this.onChangeCount.bind(this);
     this.onAddTx = this.onAddTx.bind(this);
     this.onDelTx = this.onDelTx.bind(this);
@@ -35,15 +37,8 @@ class App extends React.PureComponent {
     this.onChangeTarget = this.onChangeTarget.bind(this);
   }
 
-  onChangePrice(id, strVal) {
-    let val = 0.0;
-    try {
-      val = parseFloat(strVal).toFixed(2);
-    } catch (e) {
-      val = 0.0;
-    }
-
-    const newTx = { count: this.state.txs[id].count, price: val };
+  onChangePrice = (id, strVal) => {
+    const newTx = { count: this.state.txs[id].count, price: strVal };
     const newTxs = [
       ...this.state.txs.slice(0, id),
       newTx,
@@ -51,7 +46,7 @@ class App extends React.PureComponent {
     ];
 
     this.setState({ txs: newTxs });
-  }
+  };
 
   onChangeCount(id, strVal) {
     const val = parseInt(strVal);
@@ -67,7 +62,7 @@ class App extends React.PureComponent {
 
   onAddTx() {
     this.setState({
-      txs: [...this.state.txs, { price: 0, count: 0 }],
+      txs: [...this.state.txs, { price: "", count: 0 }],
     });
   }
 
@@ -193,36 +188,45 @@ class App extends React.PureComponent {
     const start = this.state.interval.start;
     const end = this.state.interval.end;
 
-    const interval = (end - start) / 100;
-    const gap = interval / (pointCount - 1);
-
-    let points = [];
-    let txs = [];
-    for (let i = 0; i < pointCount; i++) {
-      const price = this.state.target * (i * gap + 1);
-      points = [...points, price];
-      txs = [...txs, {price: 0, count: 0}];
-    }
+    const txs = this.calculateTxs(pointCount, start, end);
 
     this.setState({
       interval: {
         ...this.state.interval,
         count: pointCount,
-        points,
       },
+      txs,
+    });
+  };
+
+  calculateTxs = (count, start, end) => {
+    const interval = end - start;
+    const incr = interval / count;
+
+    let txs = [];
+    for (let i = 0; i < count + 1; i++) {
+      const price = start + i * incr;
+      txs = [...txs, { price: `${price.toPrecision(2)}`, count: 0 }];
+    }
+
+    return txs;
+  };
+
+  onChangeConfig = (config) => {
+    const txs = this.calculateTxs(3, config.min, config.max);
+    this.setState({
+      config,
       txs,
     });
   };
 
   render() {
     const txRows = this.state.txs.map((tx, id) => (
-      <div
-        key={`panel-${id}`}
-        // style={{ width: `${Math.floor(100 / txCount)}%` }}
-      >
+      <div key={`panel-${id}`}>
         <input
           placeholder="Price"
           type="text"
+          value={tx.price}
           onChange={(e) => {
             this.onChangePrice(id, e.target.value);
           }}
@@ -241,10 +245,12 @@ class App extends React.PureComponent {
     let totalCount = 0;
     let maxPrice = 0.0;
     this.state.txs.forEach((tx) => {
-      hold += tx.price * tx.count;
+      const price = parseInt(tx.price);
+
+      hold += price * tx.count;
       totalCount += tx.count;
-      if (tx.price - maxPrice > 0) {
-        maxPrice = tx.price;
+      if (price - maxPrice > 0) {
+        maxPrice = price;
       }
     });
     hold = hold.toFixed(2);
@@ -274,10 +280,19 @@ class App extends React.PureComponent {
         return <span>{`${quantile.name}=${quantile.value}, `}</span>;
       });
 
-    console.log(this.state);
-    const pointsList = this.state.interval.points.map((point) => {
-      return <span>{`${point.toFixed(2)}, `}</span>;
+    const configBtns = configs.map((config) => {
+      return (
+        <button
+          onClick={() => {
+            this.onChangeConfig(config);
+          }}
+        >
+          {config.name}
+        </button>
+      );
     });
+
+    console.log(this.state);
 
     if (this.state.pwd !== this.pwd) {
       return (
@@ -330,7 +345,9 @@ class App extends React.PureComponent {
             placeholder={"PointCount"}
             type="text"
           ></input>
-          <div className="result">{pointsList}</div>
+
+          <hr />
+          <div>{configBtns}</div>
         </div>
 
         <hr />
