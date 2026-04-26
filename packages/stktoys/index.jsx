@@ -6,6 +6,7 @@ import { configs } from "./configs";
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {
       txs: [{ price: "", count: 0 }],
       exit: {
@@ -35,6 +36,12 @@ class App extends React.PureComponent {
     this.onChangeExitPrice = this.onChangeExitPrice.bind(this);
     this.onChangeExitCount = this.onChangeExitCount.bind(this);
     this.onChangeTarget = this.onChangeTarget.bind(this);
+
+    cookieStore.get("p").then((cookie) => {
+      this.setState({
+        pwd: cookie.value,
+      })
+    });
   }
 
   onChangePrice = (id, strVal) => {
@@ -158,6 +165,12 @@ class App extends React.PureComponent {
   };
 
   onChangePwd = (e) => {
+    cookieStore.set({
+      name: "p",
+      value: e.target.value,
+      expires: Date.now() + 86400000000 // 24 hours
+    });
+
     this.setState({
       pwd: e.target.value,
     });
@@ -206,7 +219,7 @@ class App extends React.PureComponent {
     let txs = [];
     for (let i = 0; i < count + 1; i++) {
       const price = start + i * incr;
-      txs = [...txs, { price: `${price.toPrecision(2)}`, count: 0 }];
+      txs = [...txs, { price: `${price.toFixed(2)}`, count: 0 }];
     }
 
     return txs;
@@ -346,7 +359,6 @@ class App extends React.PureComponent {
             type="text"
           ></input>
 
-          <hr />
           <div>{configBtns}</div>
         </div>
 
