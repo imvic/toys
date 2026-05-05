@@ -39,8 +39,8 @@ class App extends React.PureComponent {
 
     cookieStore.get("p").then((cookie) => {
       this.setState({
-        pwd: cookie.value,
-      })
+        pwd: cookie != null && cookie.value,
+      });
     });
   }
 
@@ -168,7 +168,7 @@ class App extends React.PureComponent {
     cookieStore.set({
       name: "p",
       value: e.target.value,
-      expires: Date.now() + 86400000000 // 24 hours
+      expires: Date.now() + 86400000000, // 24 hours
     });
 
     this.setState({
@@ -234,25 +234,74 @@ class App extends React.PureComponent {
   };
 
   render() {
-    const txRows = this.state.txs.map((tx, id) => (
-      <div key={`panel-${id}`}>
-        <input
-          placeholder="Price"
-          type="text"
-          value={tx.price}
-          onChange={(e) => {
-            this.onChangePrice(id, e.target.value);
-          }}
-        ></input>
-        <input
-          placeholder="Count"
-          type="text"
-          onChange={(e) => {
-            this.onChangeCount(id, e.target.value);
-          }}
-        ></input>
-      </div>
-    ));
+    let avgPrice = 0.0;
+    let acc = 0;
+    let accLoss = 0;
+
+    const txRows = this.state.txs.map((tx, id) => {
+      const price = tx.price ? tx.price : 0;
+      const count = tx.count ? tx.count : 0;
+
+      const newAcc = acc + count;
+      const newTotal = count >=
+        0 ? avgPrice * acc + price * count : avgPrice * (acc + count);
+      const newAvg =
+        newAcc !== 0 ? (count >= 0 ? newTotal / newAcc : avgPrice) : 0;
+      const loss = count < 0 ? (-count) * (price - avgPrice) : 0;
+      const pos = this.state.target ? (price - this.state.target) / this.state.target : 0;
+
+      console.log("adding", id, loss, accLoss, price, count);
+
+      avgPrice = newAvg;
+      acc = newAcc;
+
+      return (
+        <div key={`panel-${id}`}>
+          <input
+            placeholder="Price"
+            type="text"
+            value={tx.price}
+            onChange={(e) => {
+              this.onChangePrice(id, e.target.value);
+            }}
+          ></input>
+          <input
+            placeholder="Count"
+            type="text"
+            onChange={(e) => {
+              this.onChangeCount(id, e.target.value);
+            }}
+          ></input>
+          <span>
+            {`${pos ? pos.toFixed(3) : 0} ___ ${newAcc} ___ ${newAvg ? newAvg.toFixed(2) : 0} ___ ${newTotal ? newTotal.toFixed(2) : 0} ___ ${loss ? loss.toFixed(2) : 0}`}
+          </span>
+        </div>
+      );
+    });
+
+    const txDetails = this.state.txs.map((tx, id) => {
+      const price = tx.price ? tx.price : 0;
+      const count = tx.count ? tx.count : 0;
+
+      const newAcc = acc + count;
+      const newTotal = avgPrice * acc + price * count;
+      const newAvg = newAcc !== 0 ? newTotal / newAcc : 0;
+      const loss = count < 0 ? count * (price - avgPrice) : 0;
+
+      accLoss += loss;
+
+      avgPrice = newAvg;
+      acc = newAcc;
+
+      return (
+        <tr id={`${id}`}>
+          <tc>{` ${newAcc} ___   `}</tc>
+          <tc>{` ${newAvg.toFixed(2)} ___ `}</tc>
+          <tc>{` ${newTotal.toFixed(2)} ___ `}</tc>
+          <tc>{` ${loss.toFixed(2)} ___ `}</tc>
+        </tr>
+      );
+    });
 
     let hold = 0;
     let totalCount = 0;
@@ -384,6 +433,17 @@ class App extends React.PureComponent {
             placeholder={"ExitCount"}
             type="text"
           ></input>
+        </div>
+        <div className="result">
+          <table>
+            {txDetails}
+            <tr>
+              {`  ___ `}
+              {`  ___ `}
+              {`  ___ `}
+              <tc>{`  ${accLoss.toFixed(2)} ___ `}</tc>
+            </tr>
+          </table>
         </div>
         <div className="result">
           <div>{`Pre: ${hold} = ${priceAvg} x ${totalCount}`}</div>
