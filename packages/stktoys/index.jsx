@@ -1,14 +1,14 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { configs } from "./configs";
+import { txConfigs } from "./configs";
 
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
-      txs: [{ price: "", count: 0 }],
+      txs: [{ price: "", count: "" }],
       exit: {
         price: 0,
         count: 0,
@@ -69,7 +69,7 @@ class App extends React.PureComponent {
 
   onAddTx() {
     this.setState({
-      txs: [...this.state.txs, { price: "", count: 0 }],
+      txs: [...this.state.txs, { price: "", count: "" }],
     });
   }
 
@@ -226,10 +226,16 @@ class App extends React.PureComponent {
   };
 
   onChangeConfig = (config) => {
-    const txs = this.calculateTxs(3, config.min, config.max);
+    const target = this.state.target;
+    const txs = config.txs.map((txConfig) => {
+      return {
+        price: ((100-txConfig.quantile)/100) * target,
+        count: txConfig.count,
+      };
+    });
+
     this.setState({
-      config,
-      txs,
+      txs
     });
   };
 
@@ -239,21 +245,23 @@ class App extends React.PureComponent {
     let accLoss = 0;
 
     const txRows = this.state.txs.map((tx, id) => {
-      const price = tx.price ? tx.price : 0;
-      const count = tx.count ? tx.count : 0;
+      const price = tx.price ? parseFloat(tx.price) : 0;
+      const count = tx.count ? parseInt(tx.count) : 0;
 
       const newAcc = acc + count;
-      const newTotal = count >=
-        0 ? avgPrice * acc + price * count : avgPrice * (acc + count);
+      const newTotal =
+        count >= 0 ? avgPrice * acc + price * count : avgPrice * (acc + count);
       const newAvg =
         newAcc !== 0 ? (count >= 0 ? newTotal / newAcc : avgPrice) : 0;
-      const loss = count < 0 ? (-count) * (price - avgPrice) : 0;
-      const pos = this.state.target ? (price - this.state.target) / this.state.target : 0;
-
-      console.log("adding", id, loss, accLoss, price, count);
+      const loss = count < 0 ? -count * (price - avgPrice) : 0;
+      const pos = this.state.target
+        ? (price - this.state.target) / this.state.target
+        : 0;
 
       avgPrice = newAvg;
       acc = newAcc;
+
+      console.log(tx);
 
       return (
         <div key={`panel-${id}`}>
@@ -268,20 +276,21 @@ class App extends React.PureComponent {
           <input
             placeholder="Count"
             type="text"
+            value={tx.count}
             onChange={(e) => {
               this.onChangeCount(id, e.target.value);
             }}
           ></input>
-          <span>
-            {`${pos ? pos.toFixed(3) : 0} ___ ${newAcc} ___ ${newAvg ? newAvg.toFixed(2) : 0} ___ ${newTotal ? newTotal.toFixed(2) : 0} ___ ${loss ? loss.toFixed(2) : 0}`}
-          </span>
+          <div className="result">
+            {`${pos ? (pos*100).toFixed(1) : 0}% ___ ${newAcc} ___ ${newAvg ? newAvg.toFixed(2) : 0} ___ ${newTotal ? newTotal.toFixed(2) : 0} ___ ${loss ? (loss*-1).toFixed(2) : 0}`}
+          </div>
         </div>
       );
     });
 
     const txDetails = this.state.txs.map((tx, id) => {
-      const price = tx.price ? tx.price : 0;
-      const count = tx.count ? tx.count : 0;
+      const price = tx.price ? parseFloat(tx.price) : 0;
+      const count = tx.count ? parseInt(tx.count) : 0;
 
       const newAcc = acc + count;
       const newTotal = avgPrice * acc + price * count;
@@ -307,10 +316,11 @@ class App extends React.PureComponent {
     let totalCount = 0;
     let maxPrice = 0.0;
     this.state.txs.forEach((tx) => {
-      const price = parseInt(tx.price);
+      const price = tx.price ? parseFloat(tx.price) : 0;
+      const count = tx.count ? parseInt(tx.count) : 0;
 
-      hold += price * tx.count;
-      totalCount += tx.count;
+      hold += price * count;
+      totalCount += count;
       if (price - maxPrice > 0) {
         maxPrice = price;
       }
@@ -342,7 +352,7 @@ class App extends React.PureComponent {
         return <span>{`${quantile.name}=${quantile.value}, `}</span>;
       });
 
-    const configBtns = configs.map((config) => {
+    const configBtns = txConfigs.map((config) => {
       return (
         <button
           onClick={() => {
