@@ -56,8 +56,7 @@ class App extends React.PureComponent {
   };
 
   onChangeCount(id, strVal) {
-    const val = parseInt(strVal);
-    const newTx = { price: this.state.txs[id].price, count: val };
+    const newTx = { price: this.state.txs[id].price, count: strVal };
     const newTxs = [
       ...this.state.txs.slice(0, id),
       newTx,
