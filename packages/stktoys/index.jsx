@@ -18,6 +18,7 @@ const qqqDropQuantiles = [
   [0.9, 2.798],
   [1, 5.691],
 ];
+const qqqAvgAmp = 0.086;
 
 class App extends React.PureComponent {
   constructor(props) {
@@ -255,7 +256,7 @@ class App extends React.PureComponent {
     });
 
     this.setState({
-      config: config.name,
+      config: config,
       txs,
     });
   };
@@ -418,6 +419,13 @@ class App extends React.PureComponent {
     // month stats
     const thisStart = parseFloat(this.state.monthStats.thisStart);
     const dropValue = thisStart - parseFloat(this.state.monthStats.lastLowest);
+    const amplitudeX = this.state.config ? this.state.config.amplitude : 0;
+    const amplitude = qqqAvgAmp * amplitudeX;
+    const dropContilesAvg = qqqDropQuantiles.map((quantile) => {
+      return (
+        <div>{`${quantile[0]} = ${thisStart - thisStart * (amplitude / 2) * quantile[1]}`}</div>
+      );
+    });
     const dropContiles = qqqDropQuantiles.map((quantile) => {
       return (
         <div>{`${quantile[0]} = ${thisStart - dropValue * quantile[1]}`}</div>
@@ -451,19 +459,22 @@ class App extends React.PureComponent {
 
         <div>
           <input
-            onChange={this.onChangeLastLowest}
-            placeholder={"Last Lowest"}
-            type="text"
-          ></input>
-          <input
             onChange={this.onChangeThisStart}
             placeholder={"This Start"}
             type="text"
           ></input>
+          <input
+            onChange={this.onChangeLastLowest}
+            placeholder={"Last lowest (optional)"}
+            type="text"
+          ></input>
 
           <div className="result">
-            <div>deadline quantiles</div>
-            {dropContiles}
+            <div>deadline quantiles last</div>
+            <div>{dropContiles}</div>
+            <hr />
+            <div>deadline quantiles avg - {amplitudeX}</div>
+            <div>{dropContilesAvg}</div>
           </div>
         </div>
 
