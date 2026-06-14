@@ -3,6 +3,22 @@ import * as ReactDOM from "react-dom";
 
 import { txConfigs } from "./configs";
 
+const qqqDropQuantiles = [
+  [0.1, 0.0],
+  [0.2, 0.093],
+  [0.3, 0.243],
+  [0.4, 0.294],
+  [0.5, 0.52],
+  [0.6, 0.583],
+  [0.61, 0.61],
+  [0.63, 0.671],
+  [0.666, 0.779],
+  [0.7, 1.118],
+  [0.8, 1.379],
+  [0.9, 2.798],
+  [1, 5.691],
+];
+
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -24,6 +40,11 @@ class App extends React.PureComponent {
         start: 0,
         end: 0,
         count: 0,
+      },
+
+      monthStats: {
+        lastLowest: "",
+        thisStart: "",
       },
 
       config: undefined,
@@ -228,13 +249,32 @@ class App extends React.PureComponent {
     const target = this.state.target;
     const txs = config.txs.map((txConfig) => {
       return {
-        price: ((100-txConfig.quantile)/100) * target,
+        price: ((100 - txConfig.quantile) / 100) * target,
         count: txConfig.count,
       };
     });
 
     this.setState({
-      txs
+      config: config.name,
+      txs,
+    });
+  };
+
+  onChangeLastLowest = (e) => {
+    this.setState({
+      monthStats: {
+        ...this.state.monthStats,
+        lastLowest: e.target.value,
+      },
+    });
+  };
+
+  onChangeThisStart = (e) => {
+    this.setState({
+      monthStats: {
+        ...this.state.monthStats,
+        thisStart: e.target.value,
+      },
     });
   };
 
@@ -281,7 +321,7 @@ class App extends React.PureComponent {
             }}
           ></input>
           <div className="result">
-            {`${pos ? (pos*100).toFixed(1) : 0}% ___ ${newAcc} ___ ${newAvg ? newAvg.toFixed(2) : 0} ___ ${newTotal ? newTotal.toFixed(2) : 0} ___ ${loss ? (loss*-1).toFixed(2) : 0}`}
+            {`${pos ? (pos * 100).toFixed(1) : 0}% ___ ${newAcc} ___ ${newAvg ? newAvg.toFixed(2) : 0} ___ ${newTotal ? newTotal.toFixed(2) : 0} ___ ${loss ? (loss * -1).toFixed(2) : 0}`}
           </div>
         </div>
       );
@@ -375,6 +415,15 @@ class App extends React.PureComponent {
       );
     }
 
+    // month stats
+    const thisStart = parseFloat(this.state.monthStats.thisStart);
+    const dropValue = thisStart - parseFloat(this.state.monthStats.lastLowest);
+    const dropContiles = qqqDropQuantiles.map((quantile) => {
+      return (
+        <div>{`${quantile[0]} = ${thisStart - dropValue * quantile[1]}`}</div>
+      );
+    });
+
     return (
       <div>
         <div>
@@ -396,6 +445,26 @@ class App extends React.PureComponent {
 
           <div className="result">{quantileListPos}</div>
           <div className="result">{quantileListNeg}</div>
+        </div>
+
+        <hr />
+
+        <div>
+          <input
+            onChange={this.onChangeLastLowest}
+            placeholder={"Last Lowest"}
+            type="text"
+          ></input>
+          <input
+            onChange={this.onChangeThisStart}
+            placeholder={"This Start"}
+            type="text"
+          ></input>
+
+          <div className="result">
+            <div>deadline quantiles</div>
+            {dropContiles}
+          </div>
         </div>
 
         <hr />
