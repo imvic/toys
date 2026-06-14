@@ -470,7 +470,10 @@ class App extends React.PureComponent {
           ></input>
 
           <div className="result">
-            <div>deadline quantiles last</div>
+            <div>
+              deadline quantiles last - {(dropValue / thisStart).toFixed(2)} /
+              {(((amplitudeX * qqqAvgAmp) / 2)).toFixed(2)}
+            </div>
             <div>{dropContiles}</div>
             <hr />
             <div>deadline quantiles avg - {amplitudeX}</div>

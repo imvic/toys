@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build-dev": "webpack --config webpack.config.common.js",
+    "build-dev": "webpack --config webpack.config.common.js --watch",
     "build-prod": "webpack --config webpack.config.common.local.js",
     "build": "yarn build-dev && yarn build-prod"
   },
